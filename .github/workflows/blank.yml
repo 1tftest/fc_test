@@ -7,7 +7,7 @@ on:
     branches: [ "main" ]
 
 env:
-  # 默认环境变量，可在各环境或分支中覆盖  
+  # 默认环境变量，可在各环境或分支中覆盖   
   FC_MEMORY_SIZE: 128
   FC_TIMEOUT: 30
   FC_INTERNET_ACCESS: true
