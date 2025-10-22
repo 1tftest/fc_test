@@ -1,24 +1,39 @@
 edition: 3.0.0
-name: ${env(FC_NAME)}
-access: default
+name: pipeline-callback-fc
+access: "default"
+
+vars:
+  region: ${env(FC_REGION)}
+  serviceName: ${env(FC_NAME)}
+  memorySize: ${env(FC_MEMORY_SIZE, 128)}
+  timeout: ${env(FC_TIMEOUT, 30)}
+  internetAccess: ${env(FC_INTERNET_ACCESS, true)}
 
 resources:
-  simple-function:
+  function:
     component: fc3
     props:
-      region: ${env(FC_REGION)}
-      functionName: ${env(FC_NAME)}
-      runtime: python3.10
-      handler: index.handler
-      memorySize: ${env(FC_MEMORY_SIZE, 128)}
-      timeout: ${env(FC_TIMEOUT, 30)}
-      code: ./
-      internetAccess: ${env(FC_INTERNET_ACCESS, true)}
+      region: ${vars.region}
+      service:
+        name: ${vars.serviceName}
+        description: "Pipeline Callback Function"
+      function:
+        name: callback-handler
+        description: "Handle pipeline callback requests"
+        runtime: python3.9
+        code: ./
+        handler: index.handler
+        memorySize: ${vars.memorySize}
+        timeout: ${vars.timeout}
+        instanceConcurrency: 1
+        environmentVariables:
+          STAGE: ${env(GITHUB_REF_NAME, 'dev')}
       triggers:
-        - triggerName: http-trigger
-          triggerType: http
-          triggerConfig:
+        - name: httpTrigger
+          type: http
+          config:
+            authType: anonymous
             methods:
               - GET
               - POST
-            authType: anonymous
+              - PUT
