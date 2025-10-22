@@ -2,12 +2,12 @@ name: Deploy to Alibaba Cloud FC
 
 on:
   push:
-    branches: [ "dev", "int", "main" ]
+    branches: ["dev", "int", "main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 env:
-  # 默认环境变量，可在各环境或分支中覆盖   好
+  # 默认环境变量，可在各环境或分支中覆盖
   FC_MEMORY_SIZE: 128
   FC_TIMEOUT: 30
   FC_INTERNET_ACCESS: true
@@ -18,117 +18,115 @@ jobs:
     name: Deploy to Development
     runs-on: ubuntu-latest
     environment: dev
-    
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout repository code
+        uses: actions/checkout@v4
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-        
-    - name: Setup Serverless Devs
-      run: npm install -g @serverless-devs/s
+      - name: Setup Python environment
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+          cache: 'pip'
 
-    - name: Configure Serverless Devs
-      run: s config add --AccessKeyID ${{ secrets.DEV_AUTOMATION_AK }} --AccessKeySecret ${{ secrets.DEV_AUTOMATION_SK }} -a default -f
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-    - name: Debug Environment Variables
-      run: |
-        echo "=== Environment Variables ==="
-        echo "FC_NAME: $FC_NAME"
-        echo "FC_REGION: $FC_REGION"
-        echo "FC_MEMORY_SIZE: $FC_MEMORY_SIZE"
-        echo "FC_TIMEOUT: $FC_TIMEOUT"
-        echo "GITHUB_REF_NAME: $GITHUB_REF_NAME"
+      - name: Setup Node.js for Serverless Devs
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
 
-    - name: Deploy to Dev Environment
-      env:
-        FC_NAME: simple-python-function-dev
-        FC_REGION: ${{ vars.FC_REGION || 'cn-beijing' }}
-        FC_MEMORY_SIZE: ${{ vars.FC_MEMORY_SIZE || '128' }}
-        FC_TIMEOUT: ${{ vars.FC_TIMEOUT || '30' }}
-        FC_INTERNET_ACCESS: ${{ vars.FC_INTERNET_ACCESS || 'true' }}
-        GITHUB_REF_NAME: dev
-      run: s deploy -y -t ./pipeline-callback-fc/s.yaml
+      - name: Install Serverless Devs CLI
+        run: npm install -g @serverless-devs/s
+
+      - name: Configure Serverless Devs credentials
+        run: s config add --AccessKeyID ${{ secrets.DEV_AUTOMATION_AK }} --AccessKeySecret ${{ secrets.DEV_AUTOMATION_SK }} -a default -f
+
+      - name: Debug environment configuration
+        run: |
+          echo "=== Deployment Environment Variables ==="
+          echo "FC_NAME: $FC_NAME"
+          echo "FC_REGION: $FC_REGION"
+          echo "FC_MEMORY_SIZE: $FC_MEMORY_SIZE"
+          echo "FC_TIMEOUT: $FC_TIMEOUT"
+          echo "Branch: $GITHUB_REF_NAME"
+          echo "Working directory: $PWD"
+
+      - name: Deploy to Development FC
+        env:
+          FC_NAME: python-function-dev
+          FC_REGION: ${{ vars.FC_REGION || 'cn-beijing' }}
+          FC_MEMORY_SIZE: ${{ vars.FC_MEMORY_SIZE || '128' }}
+          FC_TIMEOUT: ${{ vars.FC_TIMEOUT || '30' }}
+          FC_INTERNET_ACCESS: ${{ vars.FC_INTERNET_ACCESS || 'true' }}
+        run: s deploy -y -t ./s.yaml
 
   deploy-int:
     if: github.ref == 'refs/heads/int'
     name: Deploy to Integration
     runs-on: ubuntu-latest
     environment: int
-    
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout repository code
+        uses: actions/checkout@v4
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-        
-    - name: Setup Serverless Devs
-      run: npm install -g @serverless-devs/s
+      - name: Setup Python environment
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
 
-    - name: Configure Serverless Devs
-      run: s config add --AccessKeyID ${{ secrets.DEV_AUTOMATION_AK }} --AccessKeySecret ${{ secrets.DEV_AUTOMATION_SK }} -a default -f
+      - name: Setup Node.js for Serverless Devs
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
 
-    - name: Debug Environment Variables
-      run: |
-        echo "=== Environment Variables ==="
-        echo "FC_NAME: $FC_NAME"
-        echo "FC_REGION: $FC_REGION"
-        echo "FC_MEMORY_SIZE: $FC_MEMORY_SIZE"
-        echo "FC_TIMEOUT: $FC_TIMEOUT"
-        echo "GITHUB_REF_NAME: $GITHUB_REF_NAME"
+      - name: Install Serverless Devs CLI
+        run: npm install -g @serverless-devs/s
 
-    - name: Deploy to Int Environment
-      env:
-        FC_NAME: simple-python-function-int
-        FC_REGION: ${{ vars.FC_REGION || 'cn-beijing' }}
-        FC_MEMORY_SIZE: ${{ vars.FC_MEMORY_SIZE || '256' }}
-        FC_TIMEOUT: ${{ vars.FC_TIMEOUT || '60' }}
-        FC_INTERNET_ACCESS: ${{ vars.FC_INTERNET_ACCESS || 'true' }}
-        GITHUB_REF_NAME: int
-      run: s deploy -y -t ./pipeline-callback-fc/s.yaml
+      - name: Configure Serverless Devs credentials
+        run: s config add --AccessKeyID ${{ secrets.INT_AUTOMATION_AK }} --AccessKeySecret ${{ secrets.INT_AUTOMATION_SK }} -a default -f
+
+      - name: Deploy to Integration FC
+        env:
+          FC_NAME: python-function-int
+          FC_REGION: ${{ vars.FC_REGION || 'cn-beijing' }}
+          FC_MEMORY_SIZE: ${{ vars.FC_MEMORY_SIZE || '128' }}
+          FC_TIMEOUT: ${{ vars.FC_TIMEOUT || '30' }}
+          FC_INTERNET_ACCESS: ${{ vars.FC_INTERNET_ACCESS || 'true' }}
+        run: s deploy -y -t ./s.yaml
 
   deploy-prod:
     if: github.ref == 'refs/heads/main'
     name: Deploy to Production
     runs-on: ubuntu-latest
     environment: prod
-    
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout repository code
+        uses: actions/checkout@v4
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-        
-    - name: Setup Serverless Devs
-      run: npm install -g @serverless-devs/s
+      - name: Setup Python environment
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
 
-    - name: Configure Serverless Devs
-      run: s config add --AccessKeyID ${{ secrets.DEV_AUTOMATION_AK }} --AccessKeySecret ${{ secrets.DEV_AUTOMATION_SK }} -a default -f
+      - name: Setup Node.js for Serverless Devs
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
 
-    - name: Debug Environment Variables
-      run: |
-        echo "=== Environment Variables ==="
-        echo "FC_NAME: $FC_NAME"
-        echo "FC_REGION: $FC_REGION"
-        echo "FC_MEMORY_SIZE: $FC_MEMORY_SIZE"
-        echo "FC_TIMEOUT: $FC_TIMEOUT"
-        echo "GITHUB_REF_NAME: $GITHUB_REF_NAME"
+      - name: Install Serverless Devs CLI
+        run: npm install -g @serverless-devs/s
 
-    - name: Deploy to Prod Environment
-      env:
-        FC_NAME: simple-python-function-prod
-        FC_REGION: ${{ vars.FC_REGION || 'cn-beijing' }}
-        FC_MEMORY_SIZE: ${{ vars.FC_MEMORY_SIZE || '512' }}
-        FC_TIMEOUT: ${{ vars.FC_TIMEOUT || '60' }}
-        FC_INTERNET_ACCESS: ${{ vars.FC_INTERNET_ACCESS || 'true' }}
-        GITHUB_REF_NAME: main
-      run: s deploy -y -t ./pipeline-callback-fc/s.yaml
+      - name: Configure Serverless Devs credentials
+        run: s config add --AccessKeyID ${{ secrets.PROD_AUTOMATION_AK }} --AccessKeySecret ${{ secrets.PROD_AUTOMATION_SK }} -a default -f
+
+      - name: Deploy to Production FC
+        env:
+          FC_NAME: python-function-prod
+          FC_REGION: ${{ vars.FC_REGION || 'cn-beijing' }}
+          FC_MEMORY_SIZE: ${{ vars.FC_MEMORY_SIZE || '128' }}
+          FC_TIMEOUT: ${{ vars.FC_TIMEOUT || '30' }}
+          FC_INTERNET_ACCESS: ${{ vars.FC_INTERNET_ACCESS || 'true' }}
+        run: s deploy -y -t ./s.yaml
