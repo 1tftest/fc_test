@@ -32,12 +32,7 @@ jobs:
       run: npm install -g @serverless-devs/s
 
     - name: Configure Serverless Devs
-      run: |
-        s config add \
-          --AccessKeyID ${{ secrets.DEV_AUTOMATION_AK }} \
-          --AccessKeySecret ${{ secrets.DEV_AUTOMATION_SK }} \
-          --alias default \
-          -f
+      run: s config add --AccessKeyID ${{ secrets.DEV_AUTOMATION_AK }} --AccessKeySecret ${{ secrets.DEV_AUTOMATION_SK }} -a default -f
 
     - name: Deploy to Dev Environment
       env:
@@ -67,12 +62,7 @@ jobs:
       run: npm install -g @serverless-devs/s
 
     - name: Configure Serverless Devs
-      run: |
-        s config add \
-          --AccessKeyID ${{ secrets.DEV_AUTOMATION_AK }} \
-          --AccessKeySecret ${{ secrets.DEV_AUTOMATION_SK }} \
-          --alias default \
-          -f
+      run: s config add --AccessKeyID ${{ secrets.DEV_AUTOMATION_AK }} --AccessKeySecret ${{ secrets.DEV_AUTOMATION_SK }} -a default -f
 
     - name: Deploy to Int Environment
       env:
@@ -102,12 +92,7 @@ jobs:
       run: npm install -g @serverless-devs/s
 
     - name: Configure Serverless Devs
-      run: |
-        s config add \
-          --AccessKeyID ${{ secrets.DEV_AUTOMATION_AK }} \
-          --AccessKeySecret ${{ secrets.DEV_AUTOMATION_SK }} \
-          --alias default \
-          -f
+      run: s config add --AccessKeyID ${{ secrets.DEV_AUTOMATION_AK }} --AccessKeySecret ${{ secrets.DEV_AUTOMATION_SK }} -a default -f
 
     - name: Deploy to Prod Environment
       env:
