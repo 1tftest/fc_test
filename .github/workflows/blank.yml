@@ -1,36 +1,89 @@
-# This is a basic workflow to help you get started with Actions
+name: Deploy to Alibaba Cloud FC
 
-name: CI
-
-# Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the "main" branch
   push:
-    branches: [ "main" ]
+    branches: [ "dev", "int", "main" ]
   pull_request:
     branches: [ "main" ]
 
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
+env:
+  # 默认环境变量，可在各环境或分支中覆盖
+  FC_MEMORY_SIZE: 128
+  FC_TIMEOUT: 30
+  FC_INTERNET_ACCESS: true
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
-    runs-on: ubuntu-latest
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
+  deploy-dev:
+    if: github.ref == 'refs/heads/dev'
+    name: Deploy to Development
+    runs-on: standard-ghc
+    environment: dev
+    
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: echo Hello, world!
+    - name: Setup Serverless Devs
+      uses: aliyun/setup-serverless-devs@v1
+      with:
+        access-key-id: ${{ secrets.DEV_AUTOMATION_AK }}
+        access-key-secret: ${{ secrets.DEV_AUTOMATION_SK }}
 
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
-        run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
+    - name: Deploy to Dev Environment
+      env:
+        FC_NAME: simple-python-function-dev
+        FC_REGION: ${{ vars.FC_REGION || 'cn-beijing' }}
+        FC_MEMORY_SIZE: ${{ vars.FC_MEMORY_SIZE || '128' }}
+        FC_TIMEOUT: ${{ vars.FC_TIMEOUT || '30' }}
+        FC_INTERNET_ACCESS: ${{ vars.FC_INTERNET_ACCESS || 'true' }}
+      run: s deploy -y
+
+  deploy-int:
+    if: github.ref == 'refs/heads/int'
+    name: Deploy to Integration
+    runs-on: standard-ghc
+    environment: int
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Serverless Devs
+      uses: aliyun/setup-serverless-devs@v1
+      with:
+        access-key-id: ${{ secrets.DEV_AUTOMATION_AK }}
+        access-key-secret: ${{ secrets.DEV_AUTOMATION_SK }}
+
+    - name: Deploy to Int Environment
+      env:
+        FC_NAME: simple-python-function-int
+        FC_REGION: ${{ vars.FC_REGION || 'cn-beijing' }}
+        FC_MEMORY_SIZE: ${{ vars.FC_MEMORY_SIZE || '256' }}
+        FC_TIMEOUT: ${{ vars.FC_TIMEOUT || '60' }}
+        FC_INTERNET_ACCESS: ${{ vars.FC_INTERNET_ACCESS || 'true' }}
+      run: s deploy -y
+
+  deploy-prod:
+    if: github.ref == 'refs/heads/main'
+    name: Deploy to Production
+    runs-on: standard-ghc
+    environment: prod
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Serverless Devs
+      uses: aliyun/setup-serverless-devs@v1
+      with:
+        access-key-id: ${{ secrets.DEV_AUTOMATION_AK }}
+        access-key-secret: ${{ secrets.DEV_AUTOMATION_SK }}
+
+    - name: Deploy to Prod Environment
+      env:
+        FC_NAME: simple-python-function-prod
+        FC_REGION: ${{ vars.FC_REGION || 'cn-beijing' }}
+        FC_MEMORY_SIZE: ${{ vars.FC_MEMORY_SIZE || '512' }}
+        FC_TIMEOUT: ${{ vars.FC_TIMEOUT || '60' }}
+        FC_INTERNET_ACCESS: ${{ vars.FC_INTERNET_ACCESS || 'true' }}
+      run: s deploy -y
