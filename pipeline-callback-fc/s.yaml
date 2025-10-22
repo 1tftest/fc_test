@@ -1,0 +1,24 @@
+edition: 3.0.0
+name: ${env(FC_NAME)}
+access: default
+
+resources:
+  simple-function:
+    component: fc3
+    props:
+      region: ${env(FC_REGION)}
+      functionName: ${env(FC_NAME)}
+      runtime: python3.10
+      handler: index.handler
+      memorySize: ${env(FC_MEMORY_SIZE, 128)}
+      timeout: ${env(FC_TIMEOUT, 30)}
+      code: ./
+      internetAccess: ${env(FC_INTERNET_ACCESS, true)}
+      triggers:
+        - triggerName: http-trigger
+          triggerType: http
+          triggerConfig:
+            methods:
+              - GET
+              - POST
+            authType: anonymous
