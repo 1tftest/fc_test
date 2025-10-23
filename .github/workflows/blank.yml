@@ -23,13 +23,15 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
+    # - name: Setup Node.js
+    #   uses: actions/setup-node@v4
+    #   with:
+    #     node-version: '18'
+    
         
     - name: Setup Serverless Devs
       run: npm install -g @serverless-devs/s
+      
 
     - name: Configure Serverless Devs
       run: s config add --AccessKeyID ${{ secrets.DEV_AUTOMATION_AK }} --AccessKeySecret ${{ secrets.DEV_AUTOMATION_SK }} -a default -f
@@ -61,6 +63,7 @@ jobs:
         FC_INTERNET_ACCESS: ${{ vars.FC_INTERNET_ACCESS || 'true' }}
         GITHUB_REF_NAME: dev
       run: |
+        node -v
         echo "Deploying with environment variables:"
         echo "FC_NAME: $FC_NAME"
         echo "FC_REGION: $FC_REGION"
