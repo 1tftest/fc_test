@@ -34,24 +34,25 @@ jobs:
     - name: Configure Serverless Devs
       run: s config add --AccessKeyID ${{ secrets.DEV_AUTOMATION_AK }} --AccessKeySecret ${{ secrets.DEV_AUTOMATION_SK }} -a default -f
 
-    - name: Clean Serverless Devs Cache
-      run: s clean --all
+    # - name: Clean Serverless Devs Cache
+    #   run: s clean --all
 
-    - name: Debug Environment Variables
-      run: |
-        echo "=== Current Directory ==="
-        pwd
-        ls -la
-        echo "=== Pipeline Callback FC Directory ==="
-        ls -la pipeline-callback-fc/
-        echo "=== Environment Variables ==="
-        echo "FC_NAME: $FC_NAME"
-        echo "FC_REGION: $FC_REGION"
-        echo "FC_MEMORY_SIZE: $FC_MEMORY_SIZE"
-        echo "FC_TIMEOUT: $FC_TIMEOUT"
-        echo "GITHUB_REF_NAME: $GITHUB_REF_NAME"
+    # - name: Debug Environment Variables
+    #   run: |
+    #     echo "=== Current Directory ==="
+    #     pwd
+    #     ls -la
+    #     echo "=== Pipeline Callback FC Directory ==="
+    #     ls -la pipeline-callback-fc/
+    #     echo "=== Environment Variables ==="
+    #     echo "FC_NAME: $FC_NAME"
+    #     echo "FC_REGION: $FC_REGION"
+    #     echo "FC_MEMORY_SIZE: $FC_MEMORY_SIZE"
+    #     echo "FC_TIMEOUT: $FC_TIMEOUT"
+    #     echo "GITHUB_REF_NAME: $GITHUB_REF_NAME"
 
     - name: Deploy to Dev Environment
+      working-directroy: ./pipeline-callback-fc
       env:
         FC_NAME: simple-python-function-dev
         FC_REGION: ${{ vars.FC_REGION || 'cn-beijing' }}
@@ -64,7 +65,8 @@ jobs:
         echo "FC_NAME: $FC_NAME"
         echo "FC_REGION: $FC_REGION"
         echo "FC_MEMORY_SIZE: $FC_MEMORY_SIZE"
-        s deploy -y -t ./pipeline-callback-fc/s.yaml
+        # s deploy -y -t ./pipeline-callback-fc/s.yaml
+        s deploy -y 
 
   deploy-int:
     if: github.ref == 'refs/heads/int'
