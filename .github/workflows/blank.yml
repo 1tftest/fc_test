@@ -52,7 +52,7 @@ jobs:
     #     echo "GITHUB_REF_NAME: $GITHUB_REF_NAME"
 
     - name: Deploy to Dev Environment
-      working-directroy: ./pipeline-callback-fc
+      working-directory: ./pipeline-callback-fc
       env:
         FC_NAME: simple-python-function-dev
         FC_REGION: ${{ vars.FC_REGION || 'cn-beijing' }}
