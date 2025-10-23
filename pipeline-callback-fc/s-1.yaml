@@ -1,0 +1,29 @@
+edition: 3.0.0
+name: pipeline-callback-fc
+access: "default"
+
+resources:
+  function:
+    component: fc3
+    props:
+      region: cn-beijing  # 直接写死
+      service:
+        name: simple-python-function-dev  # 直接写死
+      function:
+        name: callback-handler
+        description: "Pipeline callback function"
+        runtime: python3.9
+        code: ./code
+        handler: index.handler
+        memorySize: 128  # 直接写死
+        timeout: 30  # 直接写死
+        instanceConcurrency: 1
+      triggers:
+        - name: httpTrigger
+          type: http
+          config:
+            authType: anonymous
+            methods:
+              - GET
+              - POST
+              - PUT
