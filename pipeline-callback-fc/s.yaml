@@ -18,7 +18,7 @@ resources:
       runtime: python3.9
       cpu: 0.35
       memorySize: 512
-      code: 在此处填写您的代码地址，例如：./code.zip
+      code: ./code
       asyncInvokeConfig:
         asyncTask: true
         maxAsyncEventAgeInSeconds: 86400
