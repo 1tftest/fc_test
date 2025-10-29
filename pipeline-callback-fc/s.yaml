@@ -27,6 +27,8 @@ resources:
     props:
       # 基础配置
       region: ${vars.region}
+      # 显式设置OSS外网端点
+      ossEndpoint: oss-cn-beijing.aliyuncs.com
       functionName: ${vars.functionName}-${env(GITHUB_REF_NAME, "dev")}
       runtime: ${vars.runtime}
       handler: ${vars.handler}
