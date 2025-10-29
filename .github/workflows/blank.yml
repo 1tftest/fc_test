@@ -133,12 +133,15 @@ jobs:
     - name: Setup Serverless Devs
       run: npm install -g @serverless-devs/s
 
-    - name: Configure Serverless Devs with Production Credentials
-      run: |
-        s config add \
-          --AccessKeyID ${{ secrets.DEV_AUTOMATION_AK }} \
-          --AccessKeySecret ${{ secrets.DEV_AUTOMATION_SK }} \
-          -a default -f
+    # - name: Configure Serverless Devs with Production Credentials
+    #   run: |
+    #     s config add \
+    #       --AccessKeyID ${{ secrets.DEV_AUTOMATION_AK }} \
+    #       --AccessKeySecret ${{ secrets.DEV_AUTOMATION_SK }} \
+    #       -a default -f
+    
+    - name: Configure Serverless Devs
+      run: s config add --AccessKeyID ${{ secrets.DEV_AUTOMATION_AK }} --AccessKeySecret ${{ secrets.DEV_AUTOMATION_SK }} -a default -f          
 
     - name: Debug Environment Variables
       run: |
