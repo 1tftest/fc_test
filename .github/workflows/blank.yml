@@ -129,10 +129,6 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
         
     - name: Setup Serverless Devs
       run: npm install -g @serverless-devs/s
@@ -160,14 +156,11 @@ jobs:
         FC_TIMEOUT: ${{ vars.FC_TIMEOUT || '60' }}
         ALIBABA_CLOUD_OSS_ENDPOINT: oss-cn-beijing.aliyuncs.com
         OSS_ENDPOINT: oss-cn-beijing.aliyuncs.com
-        SERVERLESS_DEVS_REQUEST_TIMEOUT: "600000"
       working-directory: ./pipeline-callback-fc
       run: |
         echo "Deploying to Production environment"
         echo "Deploying to Production environment with forced OSS endpoint"
-        # 检查当前配置
-        s config list
         echo "=== Environment Variables ==="
         env | grep -i oss
         env | grep -i endpoint
-        s deploy -y --debug 3
+        s deploy -y --debug 
