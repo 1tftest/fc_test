@@ -7,11 +7,11 @@ on:
   pull_request:
     branches: [ "main" ]
 
-env:
-  # 默认环境变量，可在各环境或分支中覆盖
-  FC_REGION: "cn-beijing"
-  FC_MEMORY_SIZE: 128
-  FC_TIMEOUT: 30
+# env:
+#   # 默认环境变量，可在各环境或分支中覆盖
+#   FC_REGION: "cn-beijing"
+#   FC_MEMORY_SIZE: 128
+#   FC_TIMEOUT: 30
 
 jobs:
   deploy-dev:
@@ -143,13 +143,13 @@ jobs:
     - name: Configure Serverless Devs
       run: s config add --AccessKeyID ${{ secrets.DEV_AUTOMATION_AK }} --AccessKeySecret ${{ secrets.DEV_AUTOMATION_SK }} -a default -f          
 
-    - name: Debug Environment Variables
-      run: |
-        echo "=== Environment Variables ==="
-        echo "FC_REGION: $FC_REGION"
-        echo "FC_MEMORY_SIZE: $FC_MEMORY_SIZE"
-        echo "FC_TIMEOUT: $FC_TIMEOUT"
-        echo "GITHUB_REF_NAME: $GITHUB_REF_NAME"
+    # - name: Debug Environment Variables
+    #   run: |
+    #     echo "=== Environment Variables ==="
+    #     echo "FC_REGION: $FC_REGION"
+    #     echo "FC_MEMORY_SIZE: $FC_MEMORY_SIZE"
+    #     echo "FC_TIMEOUT: $FC_TIMEOUT"
+    #     echo "GITHUB_REF_NAME: $GITHUB_REF_NAME"
 
     # - name: Deploy to Production Environment
     #   env:
@@ -171,6 +171,6 @@ jobs:
     - name: Deploy to Production
       working-directory: ./pipeline-callback-fc
       run: |
-        echo "Deploying with exact same pattern as dev branch"
+        # echo "Deploying with exact same pattern as dev branch"
         s deploy -y
         
