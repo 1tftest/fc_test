@@ -155,17 +155,28 @@ jobs:
         echo "FC_TIMEOUT: $FC_TIMEOUT"
         echo "GITHUB_REF_NAME: $GITHUB_REF_NAME"
 
-    - name: Deploy to Prod Environment
+    # - name: Deploy to Prod Environment
+    #   env:
+    #     FC_NAME: simple-python-function-prod
+    #     FC_REGION: ${{ vars.FC_REGION || 'cn-beijing' }}
+    #     FC_MEMORY_SIZE: ${{ vars.FC_MEMORY_SIZE || '512' }}
+    #     FC_TIMEOUT: ${{ vars.FC_TIMEOUT || '60' }}
+    #     FC_INTERNET_ACCESS: ${{ vars.FC_INTERNET_ACCESS || 'true' }}
+    #     GITHUB_REF_NAME: main
+    #   run: |
+    #     s deploy -y -t ./pipeline-callback-fc/s.yaml
+    #     # s deploy -y -t $(pwd)/pipeline-callback-fc/s.yaml \
+    #     #      --component file://$(pwd)/pipeline-callback-fc/fc3-0.1.0.zip \
+    #     #      --use-local \
+    #     #      --debug   
+    - name: Deploy to Dev Environment
       env:
         FC_NAME: simple-python-function-prod
         FC_REGION: ${{ vars.FC_REGION || 'cn-beijing' }}
         FC_MEMORY_SIZE: ${{ vars.FC_MEMORY_SIZE || '512' }}
         FC_TIMEOUT: ${{ vars.FC_TIMEOUT || '60' }}
         FC_INTERNET_ACCESS: ${{ vars.FC_INTERNET_ACCESS || 'true' }}
-        GITHUB_REF_NAME: main
+        GITHUB_REF_NAME: main    
+      working-directory: ./pipeline-callback-fc
       run: |
-        s deploy -y -t ./pipeline-callback-fc/s.yaml
-        # s deploy -y -t $(pwd)/pipeline-callback-fc/s.yaml \
-        #      --component file://$(pwd)/pipeline-callback-fc/fc3-0.1.0.zip \
-        #      --use-local \
-        #      --debug   
+        s deploy -y        
