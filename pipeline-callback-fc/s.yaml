@@ -17,7 +17,7 @@ resources:
       functionName: ${env('FUNCTION_NAME', 'callback-handler-prod')}
       runtime: python3.9
       cpu: 0.35
-      memorySize: ${env('MEMORY_SIZE', '515')}
+      memorySize: ${env('MEMORY_SIZE',515)}
       code: ./code
       asyncInvokeConfig:
         asyncTask: true
