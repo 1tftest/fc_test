@@ -9,9 +9,9 @@ on:
 
 env:
   # 默认环境变量，可在各环境或分支中覆盖
+  FC_REGION: "cn-beijing"
   FC_MEMORY_SIZE: 128
   FC_TIMEOUT: 30
-  FC_INTERNET_ACCESS: true
 
 jobs:
   deploy-dev:
@@ -33,7 +33,12 @@ jobs:
       run: npm install -g @serverless-devs/s
 
     - name: Configure Serverless Devs
-      run: s config add --AccessKeyID ${{ secrets.DEV_AUTOMATION_AK }} --AccessKeySecret ${{ secrets.DEV_AUTOMATION_SK }}  --AccountID ${{ secrets.DEV_AUTOMATION_ID }}  -a default -f
+      run: |
+        s config add \
+          --AccessKeyID ${{ secrets.DEV_AUTOMATION_AK }} \
+          --AccessKeySecret ${{ secrets.DEV_AUTOMATION_SK }} \
+          --AccountID ${{ secrets.DEV_AUTOMATION_ID }} \
+          -a default -f
 
     - name: Clean Serverless Devs Cache
       run: s clean --all
@@ -46,7 +51,6 @@ jobs:
         echo "=== Pipeline Callback FC Directory ==="
         ls -la pipeline-callback-fc/
         echo "=== Environment Variables ==="
-        echo "FC_NAME: $FC_NAME"
         echo "FC_REGION: $FC_REGION"
         echo "FC_MEMORY_SIZE: $FC_MEMORY_SIZE"
         echo "FC_TIMEOUT: $FC_TIMEOUT"
@@ -54,25 +58,18 @@ jobs:
 
     - name: Deploy to Dev Environment
       env:
-        FC_NAME: simple-python-function-dev
+        GITHUB_REF_NAME: dev
         FC_REGION: ${{ vars.FC_REGION || 'cn-beijing' }}
         FC_MEMORY_SIZE: ${{ vars.FC_MEMORY_SIZE || '128' }}
         FC_TIMEOUT: ${{ vars.FC_TIMEOUT || '30' }}
-        FC_INTERNET_ACCESS: ${{ vars.FC_INTERNET_ACCESS || 'true' }}
-        GITHUB_REF_NAME: dev
+      working-directory: ./pipeline-callback-fc
       run: |
         echo "Deploying with environment variables:"
-        echo "FC_NAME: $FC_NAME"
         echo "FC_REGION: $FC_REGION"
         echo "FC_MEMORY_SIZE: $FC_MEMORY_SIZE"
-        # s set proxy --http_proxy http://squid-service.squid.svc.cluster.local:3128 --https_proxy http://squid-service.squid.svc.cluster.local:3128 --enable
-        s deploy -y -t ./pipeline-callback-fc/s.yaml
-        
-        # s deploy -y -t ../pipeline-callback-fc/s.yaml --component file://../pipeline-callback-fc/fc3-0.1.0.zip --debug --use-local
-        # s deploy -y -t $(pwd)/pipeline-callback-fc/s.yaml \
-        #      --component file://$(pwd)/pipeline-callback-fc/fc3-0.1.0.zip \
-        #      --use-local \
-        #      --debug    
+        echo "FC_TIMEOUT: $FC_TIMEOUT"
+        echo "GITHUB_REF_NAME: $GITHUB_REF_NAME"
+        s deploy -y --debug
 
   deploy-int:
     if: github.ref == 'refs/heads/int'
@@ -93,7 +90,12 @@ jobs:
       run: npm install -g @serverless-devs/s
 
     - name: Configure Serverless Devs
-      run: s config add --AccessKeyID ${{ secrets.DEV_AUTOMATION_AK }} --AccessKeySecret ${{ secrets.DEV_AUTOMATION_SK }}   --AccountID ${{ secrets.DEV_AUTOMATION_ID }}  -a default -f
+      run: |
+        s config add \
+          --AccessKeyID ${{ secrets.DEV_AUTOMATION_AK }} \
+          --AccessKeySecret ${{ secrets.DEV_AUTOMATION_SK }} \
+          --AccountID ${{ secrets.DEV_AUTOMATION_ID }} \
+          -a default -f
 
     - name: Clean Serverless Devs Cache
       run: s clean --all
@@ -101,7 +103,6 @@ jobs:
     - name: Debug Environment Variables
       run: |
         echo "=== Environment Variables ==="
-        echo "FC_NAME: $FC_NAME"
         echo "FC_REGION: $FC_REGION"
         echo "FC_MEMORY_SIZE: $FC_MEMORY_SIZE"
         echo "FC_TIMEOUT: $FC_TIMEOUT"
@@ -109,18 +110,14 @@ jobs:
 
     - name: Deploy to Int Environment
       env:
-        FC_NAME: simple-python-function-int
+        GITHUB_REF_NAME: int
         FC_REGION: ${{ vars.FC_REGION || 'cn-beijing' }}
         FC_MEMORY_SIZE: ${{ vars.FC_MEMORY_SIZE || '256' }}
         FC_TIMEOUT: ${{ vars.FC_TIMEOUT || '60' }}
-        FC_INTERNET_ACCESS: ${{ vars.FC_INTERNET_ACCESS || 'true' }}
-        GITHUB_REF_NAME: int
+      working-directory: ./pipeline-callback-fc
       run: |
-        s deploy -y -t ./pipeline-callback-fc/s.yaml
-        # s deploy -y -t $(pwd)/pipeline-callback-fc/s.yaml \
-        #      --component file://$(pwd)/pipeline-callback-fc/fc3-0.1.0.zip \
-        #      --use-local \
-        #      --debug           
+        echo "Deploying to Integration environment"
+        s deploy -y --debug
 
   deploy-prod:
     if: github.ref == 'refs/heads/main'
@@ -140,43 +137,29 @@ jobs:
     - name: Setup Serverless Devs
       run: npm install -g @serverless-devs/s
 
-    - name: Configure Serverless Devs
-      run: s config add --AccessKeyID ${{ secrets.DEV_AUTOMATION_AK }} --AccessKeySecret ${{ secrets.DEV_AUTOMATION_SK }}  -a default -f
-
-    # - name: Clean Serverless Devs Cache
-    #   run: s clean --all
+    - name: Configure Serverless Devs with Production Credentials
+      run: |
+        s config add \
+          --AccessKeyID ${{ secrets.PROD_AUTOMATION_AK }} \
+          --AccessKeySecret ${{ secrets.PROD_AUTOMATION_SK }} \
+          --AccountID ${{ secrets.PROD_ACCOUNT_ID }} \
+          -a default -f
 
     - name: Debug Environment Variables
       run: |
         echo "=== Environment Variables ==="
-        echo "FC_NAME: $FC_NAME"
         echo "FC_REGION: $FC_REGION"
         echo "FC_MEMORY_SIZE: $FC_MEMORY_SIZE"
         echo "FC_TIMEOUT: $FC_TIMEOUT"
         echo "GITHUB_REF_NAME: $GITHUB_REF_NAME"
 
-    # - name: Deploy to Prod Environment
-    #   env:
-    #     FC_NAME: simple-python-function-prod
-    #     FC_REGION: ${{ vars.FC_REGION || 'cn-beijing' }}
-    #     FC_MEMORY_SIZE: ${{ vars.FC_MEMORY_SIZE || '512' }}
-    #     FC_TIMEOUT: ${{ vars.FC_TIMEOUT || '60' }}
-    #     FC_INTERNET_ACCESS: ${{ vars.FC_INTERNET_ACCESS || 'true' }}
-    #     GITHUB_REF_NAME: main
-    #   run: |
-    #     s deploy -y -t ./pipeline-callback-fc/s.yaml
-    #     # s deploy -y -t $(pwd)/pipeline-callback-fc/s.yaml \
-    #     #      --component file://$(pwd)/pipeline-callback-fc/fc3-0.1.0.zip \
-    #     #      --use-local \
-    #     #      --debug   
-    - name: Deploy to Dev Environment
+    - name: Deploy to Production Environment
       env:
-        FC_NAME: simple-python-function-prod
+        GITHUB_REF_NAME: prod
         FC_REGION: ${{ vars.FC_REGION || 'cn-beijing' }}
         FC_MEMORY_SIZE: ${{ vars.FC_MEMORY_SIZE || '512' }}
         FC_TIMEOUT: ${{ vars.FC_TIMEOUT || '60' }}
-        FC_INTERNET_ACCESS: ${{ vars.FC_INTERNET_ACCESS || 'true' }}
-        GITHUB_REF_NAME: main    
       working-directory: ./pipeline-callback-fc
       run: |
-        s deploy -y        
+        echo "Deploying to Production environment"
+        s deploy -y --debug
