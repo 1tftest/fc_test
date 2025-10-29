@@ -1,24 +1,23 @@
-edition: 3.0.0
+edition: 1.0.0
 name: pipeline-callback-fc
 access: "default"
 
 vars:
   region: ${env(FC_REGION, "cn-beijing")}
-  serviceName: ${env(FC_NAME, "simple-python-function")}
+  serviceName: ${env(FC_SERVICE_NAME, "pipeline-callback-service")}
+  functionName: ${env(FC_FUNCTION_NAME, "callback-handler")}
   memorySize: ${env(FC_MEMORY_SIZE, "128")}
   timeout: ${env(FC_TIMEOUT, "30")}
 
 resources:
   function:
-    # component: fc3
-    # component: file://./fc3-0.1.0.zip  # 直接引用同目录下的fc3包
     component: fc3
     props:
       region: ${vars.region}
       service:
         name: ${vars.serviceName}
       function:
-        name: callback-handler  # 明确的函数名称
+        name: ${vars.functionName}
         description: "Pipeline callback function"
         runtime: python3.9
         code: ./code
