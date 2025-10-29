@@ -1,15 +1,16 @@
+# -*- coding: utf-8 -*-
+import logging
 import json
 
+# To enable the initializer feature (https://help.aliyun.com/document_detail/2513452.html)
+# please implement the initializer function as below：
+# def initializer(context):
+#   logger = logging.getLogger()
+#   logger.info('initializing')
+
+
 def handler(event, context):
-    print("Received event:", event)
-    
-    return {
-        'statusCode': 200,
-        'headers': {
-            'Content-Type': 'application/json',
-        },
-        'body': json.dumps({
-            'message': 'Hello from Simple Python Function!',
-            'success': True
-        })
-    }
+    # evt = json.loads(event)
+    logger = logging.getLogger()
+    logger.info('hello world')
+    return 'hello world'
