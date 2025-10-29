@@ -161,4 +161,11 @@ jobs:
       working-directory: ./pipeline-callback-fc
       run: |
         echo "Deploying to Production environment"
+        # 创建配置覆盖内部端点
+        mkdir -p .s
+        cat > .s/config.yaml << EOF
+        endpoint:
+          fc: https://fc.aliyuncs.com
+          oss: https://oss-cn-beijing.aliyuncs.com
+        EOF
         s deploy -y --debug
