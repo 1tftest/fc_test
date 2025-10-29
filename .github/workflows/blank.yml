@@ -148,19 +148,26 @@ jobs:
         echo "FC_TIMEOUT: $FC_TIMEOUT"
         echo "GITHUB_REF_NAME: $GITHUB_REF_NAME"
 
-    - name: Deploy to Production Environment
-      env:
-        GITHUB_REF_NAME: prod
-        FC_REGION: ${{ vars.FC_REGION || 'cn-beijing' }}
-        FC_MEMORY_SIZE: ${{ vars.FC_MEMORY_SIZE || '512' }}
-        FC_TIMEOUT: ${{ vars.FC_TIMEOUT || '60' }}
-        ALIBABA_CLOUD_OSS_ENDPOINT: oss-cn-beijing.aliyuncs.com
-        OSS_ENDPOINT: oss-cn-beijing.aliyuncs.com
+    # - name: Deploy to Production Environment
+    #   env:
+    #     GITHUB_REF_NAME: prod
+    #     FC_REGION: ${{ vars.FC_REGION || 'cn-beijing' }}
+    #     FC_MEMORY_SIZE: ${{ vars.FC_MEMORY_SIZE || '512' }}
+    #     FC_TIMEOUT: ${{ vars.FC_TIMEOUT || '60' }}
+    #     ALIBABA_CLOUD_OSS_ENDPOINT: oss-cn-beijing.aliyuncs.com
+    #     OSS_ENDPOINT: oss-cn-beijing.aliyuncs.com
+    #   working-directory: ./pipeline-callback-fc
+    #   run: |
+    #     echo "Deploying to Production environment"
+    #     echo "Deploying to Production environment with forced OSS endpoint"
+    #     echo "=== Environment Variables ==="
+    #     env | grep -i oss
+    #     env | grep -i endpoint
+    #     s deploy -y --use-local --debug 
+
+    - name: Deploy to Production
       working-directory: ./pipeline-callback-fc
       run: |
-        echo "Deploying to Production environment"
-        echo "Deploying to Production environment with forced OSS endpoint"
-        echo "=== Environment Variables ==="
-        env | grep -i oss
-        env | grep -i endpoint
-        s deploy -y --use-local --debug 
+        echo "Deploying with exact same pattern as dev branch"
+        s deploy -y
+        
