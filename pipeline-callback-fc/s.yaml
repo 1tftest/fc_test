@@ -14,7 +14,7 @@ resources:
       diskSize: 512
       internetAccess: true
       resourceGroupId: rg-acfmzg7sd6igwsi
-      functionName: ${env.FUNCTION_NAME}
+      functionName: ${env('FUNCTION_NAME', 'callback-handler-prod')}
       runtime: python3.9
       cpu: 0.35
       memorySize: ${env.MEMORY_SIZE}
