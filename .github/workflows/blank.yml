@@ -1,6 +1,7 @@
 name: Deploy to Alibaba Cloud FC
 
 on:
+  workflow_dispatch:
   push:
     branches: [ "dev", "int", "main" ]
   pull_request:
