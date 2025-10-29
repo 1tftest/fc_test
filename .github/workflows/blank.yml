@@ -158,14 +158,16 @@ jobs:
         FC_REGION: ${{ vars.FC_REGION || 'cn-beijing' }}
         FC_MEMORY_SIZE: ${{ vars.FC_MEMORY_SIZE || '512' }}
         FC_TIMEOUT: ${{ vars.FC_TIMEOUT || '60' }}
+        ALIBABA_CLOUD_OSS_ENDPOINT: oss-cn-beijing.aliyuncs.com
+        OSS_ENDPOINT: oss-cn-beijing.aliyuncs.com
+        SERVERLESS_DEVS_REQUEST_TIMEOUT: "600000"
       working-directory: ./pipeline-callback-fc
       run: |
         echo "Deploying to Production environment"
-        # 创建配置覆盖内部端点
-        mkdir -p .s
-        cat > .s/config.yaml << EOF
-        endpoint:
-          fc: https://fc.aliyuncs.com
-          oss: https://oss-cn-beijing.aliyuncs.com
-        EOF
-        s deploy -y --debug
+        echo "Deploying to Production environment with forced OSS endpoint"
+        # 检查当前配置
+        s config list
+        echo "=== Environment Variables ==="
+        env | grep -i oss
+        env | grep -i endpoint
+        s deploy -y --debug 3
