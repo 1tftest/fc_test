@@ -140,9 +140,8 @@ jobs:
     - name: Configure Serverless Devs with Production Credentials
       run: |
         s config add \
-          --AccessKeyID ${{ secrets.PROD_AUTOMATION_AK }} \
-          --AccessKeySecret ${{ secrets.PROD_AUTOMATION_SK }} \
-          --AccountID ${{ secrets.PROD_ACCOUNT_ID }} \
+          --AccessKeyID ${{ secrets.DEV_AUTOMATION_AK }} \
+          --AccessKeySecret ${{ secrets.DEV_AUTOMATION_SK }} \
           -a default -f
 
     - name: Debug Environment Variables
