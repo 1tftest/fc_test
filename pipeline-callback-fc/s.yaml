@@ -1,5 +1,5 @@
 edition: 3.0.0
-name: fc3-example-test
+name: fc3-example-test1
 access: default
 resources:
   fcDemo:
