@@ -29,6 +29,7 @@ resources:
       region: ${vars.region}
       # 显式设置OSS外网端点
       ossEndpoint: oss-cn-beijing.aliyuncs.com
+      useRemoteCode: true
       functionName: ${vars.functionName}-${env(GITHUB_REF_NAME, "dev")}
       runtime: ${vars.runtime}
       handler: ${vars.handler}
