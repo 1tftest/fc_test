@@ -6,11 +6,11 @@ import json
 # please implement the initializer function as below：
 # def initializer(context):
 #   logger = logging.getLogger()
-#   logger.info('initializing')
+#   logger.info('initializing') jinbo
 
 
 def handler(event, context):
     # evt = json.loads(event)
     logger = logging.getLogger()
     logger.info('hello world')
-    return 'hello jinbo  world'
+    return 'hello world'
