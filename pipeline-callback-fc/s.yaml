@@ -5,9 +5,8 @@ access: "default"
 vars:
   # 基础配置变量
   region: ${env(FC_REGION, "cn-beijing")}
-  serviceName: ${env(FC_NAME, "simple-python-function")}
-  memorySize: ${env(FC_MEMORY_SIZE, "512")}
-  timeout: ${env(FC_TIMEOUT, "60")}
+  memorySize: ${env(FC_MEMORY_SIZE, "128")}
+  timeout: ${env(FC_TIMEOUT, "30")}
   
   # 函数配置变量
   functionName: "callback-handler"
@@ -21,7 +20,6 @@ vars:
   internetAccess: true
   resourceGroupId: "rg-acfmzg7sd6igwsi"
   disableOndemand: false
-  instanceConcurrency: 1
 
 resources:
   fcDemo:
