@@ -1,5 +1,5 @@
 edition: 3.0.0
-name: fc3-example
+name: fc3-example-test
 access: default
 resources:
   fcDemo:
@@ -21,7 +21,7 @@ resources:
       instanceIsolationMode: SHARE
       functionName: callback-handler-prod
       sessionAffinity: NONE
-      runtime: python3.12
+      runtime: python3.9
       cpu: 0.35
       memorySize: 512
       environmentVariables:
