@@ -1,6 +1,7 @@
 name: Deploy to Alibaba Cloud FC
 
 on:
+  workflow_dispatch:
   push:
     branches: [ "dev", "int", "main" ]
   pull_request:
@@ -16,7 +17,7 @@ jobs:
   deploy-dev:
     if: github.ref == 'refs/heads/dev'
     name: Deploy to Development
-    runs-on: ubuntu-latest
+    runs-on: standard-ghc
     environment: dev
     
     steps:
@@ -32,7 +33,7 @@ jobs:
       run: npm install -g @serverless-devs/s
 
     - name: Configure Serverless Devs
-      run: s config add --AccessKeyID ${{ secrets.DEV_AUTOMATION_AK }} --AccessKeySecret ${{ secrets.DEV_AUTOMATION_SK }} -a default -f
+      run: s config add --AccessKeyID ${{ secrets.DEV_AUTOMATION_AK }} --AccessKeySecret ${{ secrets.DEV_AUTOMATION_SK }}  --AccountID ${{ secrets.DEV_AUTOMATION_ID }}  -a default -f
 
     - name: Clean Serverless Devs Cache
       run: s clean --all
@@ -64,12 +65,19 @@ jobs:
         echo "FC_NAME: $FC_NAME"
         echo "FC_REGION: $FC_REGION"
         echo "FC_MEMORY_SIZE: $FC_MEMORY_SIZE"
+        # s set proxy --http_proxy http://squid-service.squid.svc.cluster.local:3128 --https_proxy http://squid-service.squid.svc.cluster.local:3128 --enable
         s deploy -y -t ./pipeline-callback-fc/s.yaml
+        
+        # s deploy -y -t ../pipeline-callback-fc/s.yaml --component file://../pipeline-callback-fc/fc3-0.1.0.zip --debug --use-local
+        # s deploy -y -t $(pwd)/pipeline-callback-fc/s.yaml \
+        #      --component file://$(pwd)/pipeline-callback-fc/fc3-0.1.0.zip \
+        #      --use-local \
+        #      --debug    
 
   deploy-int:
     if: github.ref == 'refs/heads/int'
     name: Deploy to Integration
-    runs-on: ubuntu-latest
+    runs-on: standard-ghc
     environment: int
     
     steps:
@@ -85,7 +93,7 @@ jobs:
       run: npm install -g @serverless-devs/s
 
     - name: Configure Serverless Devs
-      run: s config add --AccessKeyID ${{ secrets.DEV_AUTOMATION_AK }} --AccessKeySecret ${{ secrets.DEV_AUTOMATION_SK }} -a default -f
+      run: s config add --AccessKeyID ${{ secrets.DEV_AUTOMATION_AK }} --AccessKeySecret ${{ secrets.DEV_AUTOMATION_SK }}   --AccountID ${{ secrets.DEV_AUTOMATION_ID }}  -a default -f
 
     - name: Clean Serverless Devs Cache
       run: s clean --all
@@ -107,12 +115,17 @@ jobs:
         FC_TIMEOUT: ${{ vars.FC_TIMEOUT || '60' }}
         FC_INTERNET_ACCESS: ${{ vars.FC_INTERNET_ACCESS || 'true' }}
         GITHUB_REF_NAME: int
-      run: s deploy -y -t ./pipeline-callback-fc/s.yaml
+      run: |
+        s deploy -y -t ./pipeline-callback-fc/s.yaml
+        # s deploy -y -t $(pwd)/pipeline-callback-fc/s.yaml \
+        #      --component file://$(pwd)/pipeline-callback-fc/fc3-0.1.0.zip \
+        #      --use-local \
+        #      --debug           
 
   deploy-prod:
     if: github.ref == 'refs/heads/main'
     name: Deploy to Production
-    runs-on: ubuntu-latest
+    runs-on: standard-ghc
     environment: prod
     
     steps:
@@ -128,10 +141,10 @@ jobs:
       run: npm install -g @serverless-devs/s
 
     - name: Configure Serverless Devs
-      run: s config add --AccessKeyID ${{ secrets.DEV_AUTOMATION_AK }} --AccessKeySecret ${{ secrets.DEV_AUTOMATION_SK }} -a default -f
+      run: s config add --AccessKeyID ${{ secrets.DEV_AUTOMATION_AK }} --AccessKeySecret ${{ secrets.DEV_AUTOMATION_SK }} --AccountID ${{ secrets.DEV_AUTOMATION_ID }}  -a default -f
 
-    - name: Clean Serverless Devs Cache
-      run: s clean --all
+    # - name: Clean Serverless Devs Cache
+    #   run: s clean --all
 
     - name: Debug Environment Variables
       run: |
@@ -150,4 +163,9 @@ jobs:
         FC_TIMEOUT: ${{ vars.FC_TIMEOUT || '60' }}
         FC_INTERNET_ACCESS: ${{ vars.FC_INTERNET_ACCESS || 'true' }}
         GITHUB_REF_NAME: main
-      run: s deploy -y -t ./pipeline-callback-fc/s.yaml
+      run: |
+        s deploy -y -t ./pipeline-callback-fc/s.yaml
+        # s deploy -y -t $(pwd)/pipeline-callback-fc/s.yaml \
+        #      --component file://$(pwd)/pipeline-callback-fc/fc3-0.1.0.zip \
+        #      --use-local \
+        #      --debug   
