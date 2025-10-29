@@ -169,6 +169,8 @@ jobs:
     #     s deploy -y --use-local --debug 
 
     - name: Deploy to Production
+      env:
+        FUNCTION_NAME: callback-handler-prod
       working-directory: ./pipeline-callback-fc
       run: |
         # echo "Deploying with exact same pattern as dev branch"
