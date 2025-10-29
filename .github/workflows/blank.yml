@@ -163,4 +163,4 @@ jobs:
         echo "=== Environment Variables ==="
         env | grep -i oss
         env | grep -i endpoint
-        s deploy -y --debug 
+        s deploy -y --use-local --debug 
