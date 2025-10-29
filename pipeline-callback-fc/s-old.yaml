@@ -1,68 +1,25 @@
 edition: 3.0.0
-name: pipeline-callback-fc
-access: "default"
-
-vars:
-  # 基础配置变量
-  region: ${env(FC_REGION, "cn-beijing")}
-  memorySize: ${env(FC_MEMORY_SIZE, "128")}
-  timeout: ${env(FC_TIMEOUT, "30")}
-  
-  # 函数配置变量
-  functionName: "callback-handler"
-  runtime: "python3.9"
-  handler: "index.handler"
-  codePath: "./code"
-  
-  # 高级配置变量
-  cpu: 0.35
-  diskSize: 512
-  internetAccess: true
-  resourceGroupId: "rg-acfmzg7sd6igwsi"
-  disableOndemand: false
-
+name: fc3-example-test
+access: default
 resources:
   fcDemo:
     component: fc3
     props:
-      # 基础配置
-      region: ${vars.region}
-      # 显式设置OSS外网端点
-      ossEndpoint: oss-cn-beijing.aliyuncs.com
-      useRemoteCode: true
-      functionName: ${vars.functionName}-${env(GITHUB_REF_NAME, "dev")}
-      runtime: ${vars.runtime}
-      handler: ${vars.handler}
-      code: ${vars.codePath}
-      
-      # 资源规格
-      memorySize: ${vars.memorySize}
-      timeout: ${vars.timeout}
-      cpu: ${vars.cpu}
-      diskSize: ${vars.diskSize}
-      
-      # 网络与权限
-      internetAccess: ${vars.internetAccess}
-      resourceGroupId: ${vars.resourceGroupId}
-      disableOndemand: ${vars.disableOndemand}
+      region: cn-beijing
+      handler: index.handler
       role: ''
-      
-      # 描述信息
-      description: "Pipeline callback function for ${env(GITHUB_REF_NAME, 'dev')} environment"
-      
-      # 异步配置
+      disableOndemand: false
+      description: ''
+      timeout: 60
+      diskSize: 512
+      internetAccess: true
+      resourceGroupId: rg-acfmzg7sd6igwsi
+      functionName: ${env.FUNCTION_NAME}
+      runtime: python3.9
+      cpu: 0.35
+      memorySize: ${env.MEMORY_SIZE}
+      code: ./code
       asyncInvokeConfig:
         asyncTask: true
         maxAsyncEventAgeInSeconds: 86400
         maxAsyncRetryAttempts: 3
-      
-      # HTTP 触发器
-      triggers:
-        - name: httpTrigger
-          type: http
-          config:
-            authType: anonymous
-            methods:
-              - GET
-              - POST
-              - PUT
