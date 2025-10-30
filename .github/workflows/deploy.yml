@@ -17,7 +17,7 @@ on:
         default: 'python3.12'
 
 env:
-  REGION: cn-hangzhou
+  REGION: cn-shanghai
 
 jobs:
   deploy-layer:
