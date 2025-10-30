@@ -1,0 +1,107 @@
+name: Deploy Layer to Aliyun FC
+
+on:
+  workflow_dispatch:  # 手动触发
+    inputs:
+      layer_name:
+        description: 'Layer name'
+        required: true
+        default: 'account-vending-deps'
+      layer_description:
+        description: 'Layer description'
+        required: false
+        default: 'Dependencies layer for account-vending Flask app'
+      python_version:
+        description: 'Python version'
+        required: true
+        default: 'python3.12'
+
+env:
+  REGION: cn-hangzhou
+
+jobs:
+  deploy-layer:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '${{ github.event.inputs.python_version }}'
+
+    - name: Install uv
+      run: |
+        curl -LsSf https://astral.sh/uv/install.sh | sh
+        echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+    - name: Install dependencies using uv
+      run: |
+        uv sync --frozen
+        # 创建层需要的目录结构
+        mkdir -p layer/python
+
+    - name: Prepare layer content
+      run: |
+        # 复制依赖到层目录
+        cp -r .venv/lib/python3.12/site-packages/* layer/python/
+        # 创建层配置文件
+        cat > layer/.layer-config.json << EOF
+        {
+          "name": "${{ github.event.inputs.layer_name }}",
+          "description": "${{ github.event.inputs.layer_description }}",
+          "compatible_runtime": ["${{ github.event.inputs.python_version }}"],
+          "created_time": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+        }
+        EOF
+
+    - name: Package layer
+      run: |
+        cd layer && zip -r ../layer.zip . && cd ..
+
+    - name: Setup Serverless Devs
+      uses: aliyun/setup-serverless-devs@v1
+      with:
+        access-key-id: ${{ secrets.ALIYUN_ACCESS_KEY_ID }}
+        access-key-secret: ${{ secrets.ALIYUN_ACCESS_KEY_SECRET }}
+        region: ${{ env.REGION }}
+
+    - name: Deploy layer to FC
+      run: |
+        # 创建层部署配置
+        cat > s-layer.yaml << EOF
+        edition: 1.0.0
+        name: layer-deploy
+        access: "default"
+
+        services:
+          layer-service:
+            component: fc
+            props:
+              region: ${{ env.REGION }}
+              layer:
+                name: ${{ github.event.inputs.layer_name }}
+                description: ${{ github.event.inputs.layer_description }}
+                code: ./layer.zip
+                compatibleRuntime:
+                  - ${{ github.event.inputs.python_version }}
+        EOF
+        
+        # 部署层
+        s layer-service layer deploy -t s-layer.yaml --assume-yes
+
+    - name: Get layer version ARN
+      id: get_layer
+      run: |
+        # 获取层的最新版本ARN
+        LAYER_ARN=$(s layer-service layer version list --layer-name ${{ github.event.inputs.layer_name }} --region ${{ env.REGION }} | grep -o 'acs:fc:[^"]*' | head -1)
+        echo "layer_arn=$LAYER_ARN" >> $GITHUB_OUTPUT
+        echo "Layer ARN: $LAYER_ARN"
+
+    - name: Update layer version in main workflow
+      run: |
+        # 这里可以更新主工作流的配置，或者输出层ARN供后续使用
+        echo "Layer deployed successfully: ${{ steps.get_layer.outputs.layer_arn }}"
+        echo "Please update your s.yaml with layer ARN: ${{ steps.get_layer.outputs.layer_arn }}"
